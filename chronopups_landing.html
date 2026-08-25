@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ХроноПупс — Живой питомец в твоём телефоне</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --mint:#3ECF8E;--mint-l:#D6F5E9;--mint-d:#1a9e65;
+  --sun:#F7C948;--sun-l:#FEF4C0;
+  --red:#FF6B6B;--red-l:#FFE5E5;
+  --sky:#4A90D9;--sky-l:#DCF0FF;
+  --night:#2B2D42;--ink:#1a1c2e;--muted:#7a7d99;
+  --bg:#F8F7F4;--card:#fff;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;height:64px;
+  background:rgba(248,247,244,.88);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(43,45,66,.07);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--ink);}
+.nav-logo svg{width:36px;height:36px;}
+.nav-links{display:flex;gap:28px;font-size:14px;font-weight:600;color:var(--muted);}
+.nav-links a{text-decoration:none;color:inherit;transition:color .2s;}
+.nav-links a:hover{color:var(--ink);}
+.nav-cta{
+  background:var(--mint);color:white;border:none;
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;
+  padding:9px 22px;border-radius:12px;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+  text-decoration:none;
+}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(62,207,142,.35);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;
+  padding:100px 5vw 60px;
+  background:radial-gradient(ellipse 80% 60% at 50% 30%, #e6fff4 0%, var(--bg) 70%);
+  position:relative;overflow:hidden;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--mint-l);color:var(--mint-d);
+  font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 16px;border-radius:99px;margin-bottom:28px;
+}
+.hero h1{
+  font-size:clamp(42px,8vw,90px);font-weight:900;
+  line-height:1.0;letter-spacing:-.03em;color:var(--ink);
+  margin-bottom:10px;
+}
+.hero h1 .accent{color:var(--mint);}
+.hero-sub{
+  font-size:clamp(16px,2.5vw,22px);color:var(--muted);font-weight:600;
+  max-width:520px;line-height:1.5;margin:0 auto 40px;
+}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:64px;}
+.btn-store{
+  display:flex;align-items:center;gap:10px;
+  background:var(--night);color:white;
+  padding:13px 24px;border-radius:14px;text-decoration:none;
+  font-size:14px;font-weight:700;transition:transform .15s,box-shadow .15s;
+  border:none;cursor:pointer;font-family:'Nunito',sans-serif;
+}
+.btn-store:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(43,45,66,.25);}
+.btn-store svg{width:22px;height:22px;flex-shrink:0;}
+.btn-store-inner{display:flex;flex-direction:column;align-items:flex-start;gap:1px;}
+.btn-store-sub{font-size:10px;font-weight:600;opacity:.6;letter-spacing:.04em;text-transform:uppercase;}
+.btn-store-name{font-size:16px;font-weight:800;}
+.btn-store.android{background:white;color:var(--ink);border:1.5px solid rgba(43,45,66,.12);}
+.btn-store.android:hover{box-shadow:0 8px 24px rgba(43,45,66,.12);}
+
+/* hero pet */
+.hero-pet-wrap{position:relative;display:inline-block;}
+.hero-pet-wrap svg.hero-pet{width:clamp(160px,25vw,240px);filter:drop-shadow(0 20px 40px rgba(62,207,142,.2));}
+.bubble{
+  position:absolute;top:-18px;right:-30px;
+  background:white;border:2px solid var(--mint-l);
+  border-radius:16px 16px 16px 4px;
+  padding:8px 14px;font-size:13px;font-weight:700;color:var(--mint-d);
+  white-space:nowrap;
+  animation:float 3s ease-in-out infinite;
+  box-shadow:0 4px 16px rgba(62,207,142,.12);
+}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+
+/* floating dots bg */
+.dots{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.dot{position:absolute;border-radius:50%;opacity:.12;}
+
+/* ── SECTIONS common ── */
+section{padding:80px 5vw;}
+.section-tag{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mint-d);margin-bottom:12px;}
+.section-h{font-size:clamp(28px,4vw,46px);font-weight:900;letter-spacing:-.02em;line-height:1.1;color:var(--ink);margin-bottom:16px;}
+.section-sub{font-size:17px;color:var(--muted);font-weight:600;line-height:1.5;max-width:520px;}
+
+/* ── HOW IT WORKS ── */
+.how{background:white;}
+.how-inner{max-width:1080px;margin:0 auto;}
+.how-head{text-align:center;margin-bottom:56px;}
+.how-head .section-sub{margin:0 auto;}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px;}
+.step{
+  background:var(--bg);border-radius:20px;padding:28px 24px;
+  border:1px solid rgba(43,45,66,.07);
+  transition:transform .2s,box-shadow .2s;
+}
+.step:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(43,45,66,.08);}
+.step-icon{font-size:36px;margin-bottom:16px;}
+.step-title{font-size:17px;font-weight:800;color:var(--ink);margin-bottom:8px;}
+.step-desc{font-size:14px;color:var(--muted);line-height:1.55;}
+
+/* ── STATS BAR ── */
+.statbar{background:var(--night);padding:40px 5vw;overflow:hidden;}
+.statbar-inner{max-width:1080px;margin:0 auto;display:flex;justify-content:space-around;flex-wrap:wrap;gap:24px;}
+.stat-block{text-align:center;}
+.stat-num{font-family:'Share Tech Mono',monospace;font-size:42px;color:var(--mint);font-weight:400;line-height:1;}
+.stat-label{font-size:13px;color:rgba(255,255,255,.5);font-weight:600;margin-top:6px;}
+
+/* ── PET SHOWCASE ── */
+.showcase{background:var(--bg);}
+.showcase-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.states-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.state-card{
+  background:white;border-radius:18px;
+  border:1px solid rgba(43,45,66,.07);
+  padding:20px;text-align:center;
+  transition:transform .2s;
+}
+.state-card:hover{transform:scale(1.03);}
+.state-card svg{width:72px;height:72px;margin-bottom:12px;}
+.state-name{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:4px;}
+.state-desc{font-size:12px;color:var(--muted);}
+.state-hp{
+  display:inline-block;font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:99px;margin-top:8px;
+}
+
+/* ── NOTIFICATIONS ── */
+.notifs{background:white;overflow:hidden;}
+.notifs-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.notif-phone{
+  background:var(--night);border-radius:38px;padding:12px;
+  box-shadow:0 24px 60px rgba(43,45,66,.28);
+  max-width:280px;margin:0 auto;
+}
+.notif-screen{
+  background:#1a1c2e;border-radius:28px;overflow:hidden;padding:20px 14px;
+  min-height:340px;display:flex;flex-direction:column;gap:12px;
+}
+.notif-time{font-family:'Share Tech Mono',monospace;font-size:38px;color:white;text-align:center;margin-bottom:4px;}
+.notif-date{font-size:12px;color:rgba(255,255,255,.35);text-align:center;margin-bottom:8px;}
+.push{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);
+  border-radius:18px;padding:13px 14px;
+}
+.push-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.push-app-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.push-app-name{font-size:10px;font-weight:700;color:white;}
+.push-time{font-size:9px;color:rgba(255,255,255,.4);margin-left:auto;}
+.push-body{display:flex;align-items:center;gap:10px;}
+.push-text-title{font-size:12px;font-weight:700;color:white;margin-bottom:3px;}
+.push-text-sub{font-size:11px;color:rgba(255,255,255,.55);}
+.push-btns{display:flex;gap:6px;margin-top:10px;}
+.push-btn{flex:1;border:none;border-radius:9px;padding:8px;font-family:'Nunito',sans-serif;font-size:10px;font-weight:700;cursor:pointer;}
+.push-later{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);}
+.push-action{background:var(--mint);color:white;}
+
+/* ── FEATURES ── */
+.features{background:var(--bg);}
+.features-inner{max-width:1080px;margin:0 auto;}
+.features-head{margin-bottom:48px;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.feat-card{
+  background:white;border-radius:20px;
+  border:1px solid rgba(43,45,66,.07);
+  padding:28px 26px;
+  transition:transform .2s,box-shadow .2s;
+}
+.feat-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(43,45,66,.07);}
+.feat-icon{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;margin-bottom:18px;
+}
+.feat-title{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px;}
+.feat-desc{font-size:14px;color:var(--muted);line-height:1.6;}
+
+/* ── TESTIMONIALS ── */
+.reviews{background:white;}
+.reviews-inner{max-width:1080px;margin:0 auto;}
+.reviews-head{margin-bottom:40px;}
+.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.review-card{
+  background:var(--bg);border-radius:18px;padding:22px;
+  border:1px solid rgba(43,45,66,.06);
+}
+.review-stars{color:var(--sun);font-size:14px;margin-bottom:12px;}
+.review-text{font-size:14px;color:var(--ink);line-height:1.6;margin-bottom:16px;font-weight:600;}
+.review-author{display:flex;align-items:center;gap:10px;}
+.review-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.review-name{font-size:13px;font-weight:700;color:var(--ink);}
+.review-handle{font-size:11px;color:var(--muted);}
+
+/* ── CTA FINAL ── */
+.cta-final{
+  background:var(--mint);
+  padding:80px 5vw;text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-final h2{font-size:clamp(32px,5vw,58px);font-weight:900;color:white;letter-spacing:-.02em;margin-bottom:16px;line-height:1.1;}
+.cta-final p{font-size:18px;color:rgba(255,255,255,.75);font-weight:600;margin-bottom:40px;}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-white{
+  display:flex;align-items:center;gap:10px;
+  background:white;color:var(--ink);
+  padding:13px 24px;border-radius:14px;text-decoration:none;
+  font-size:14px;font-weight:700;transition:transform .15s,box-shadow .15s;
+  border:none;cursor:pointer;font-family:'Nunito',sans-serif;
+}
+.btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.15);}
+.btn-outline{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.15);color:white;
+  padding:13px 24px;border-radius:14px;text-decoration:none;
+  font-size:14px;font-weight:700;transition:transform .15s;
+  border:2px solid rgba(255,255,255,.3);cursor:pointer;font-family:'Nunito',sans-serif;
+}
+.btn-outline:hover{transform:translateY(-2px);background:rgba(255,255,255,.22);}
+
+/* ── FOOTER ── */
+footer{background:var(--night);padding:32px 5vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.footer-logo{font-size:16px;font-weight:800;color:white;display:flex;align-items:center;gap:8px;}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.35);}
+.footer-links{display:flex;gap:20px;}
+.footer-links a{font-size:12px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s;}
+.footer-links a:hover{color:rgba(255,255,255,.7);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:720px){
+  .showcase-inner,.notifs-inner{grid-template-columns:1fr;}
+  .nav-links{display:none;}
+  .notif-phone{max-width:100%;}
+}
+
+/* pet bounce on scroll into view */
+@keyframes pet-enter{0%{transform:scale(.7) translateY(30px);opacity:0;}100%{transform:scale(1) translateY(0);opacity:1;}}
+.pet-animate{animation:pet-enter .6s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes wiggle{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="5,16 9,7 13,15" fill="#2B2D42"/>
+      <polygon points="5.5,15 9,8.5 12.5,15" fill="#3ECF8E"/>
+      <polygon points="23,15 27,7 31,16" fill="#2B2D42"/>
+      <polygon points="23.5,15 27,8.5 30.5,15" fill="#3ECF8E"/>
+      <circle cx="18" cy="22" r="13" fill="white" stroke="#2B2D42" stroke-width="2"/>
+      <circle cx="18" cy="22" r="10" fill="none" stroke="#e8e8e8" stroke-width="2.5"/>
+      <circle cx="18" cy="22" r="10" fill="none" stroke="#3ECF8E" stroke-width="2.5" stroke-dasharray="47 16" stroke-linecap="round" stroke-dashoffset="18" transform="rotate(-90 18 22)"/>
+      <ellipse cx="14" cy="20" rx="1.8" ry="2" fill="#2B2D42"/>
+      <ellipse cx="22" cy="20" rx="1.8" ry="2" fill="#2B2D42"/>
+      <path d="M14,24.5 Q18,28 22,24.5" fill="none" stroke="#2B2D42" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="18" cy="22" r="2" fill="#F7C948"/>
+      <line x1="18" y1="22" x2="18" y2="14" stroke="#2B2D42" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="18" y1="22" x2="23" y2="24" stroke="#2B2D42" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    ХроноПупс
+  </div>
+  <div class="nav-links">
+    <a href="#how">Как работает</a>
+    <a href="#features">Возможности</a>
+    <a href="#reviews">Отзывы</a>
+  </div>
+  <a href="#download" class="nav-cta">Скачать</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="dots" id="dots"></div>
+  <div class="hero-eyebrow">🐾 Электронный питомец нового поколения</div>
+  <h1>Он <span class="accent">живёт.</span><br>Не забудь о нём.</h1>
+  <p class="hero-sub">Твой Пупс голодает, скучает и может умереть. Загляни к нему — он ждёт.</p>
+  <div class="hero-btns">
+    <a href="#download" class="btn-store">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.18 1.27-2.16 3.8.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.37 2.78M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <div class="btn-store-inner">
+        <span class="btn-store-sub">Скачать в</span>
+        <span class="btn-store-name">App Store</span>
+      </div>
+    </a>
+    <a href="#download" class="btn-store android">
+      <svg viewBox="0 0 24 24" fill="#3ECF8E"><path d="M17.523 15.341c-.412 0-.747-.336-.747-.748s.335-.748.747-.748.748.336.748.748-.336.748-.748.748m-11.046 0c-.412 0-.748-.336-.748-.748s.336-.748.748-.748.747.336.747.748-.335.748-.747.748m11.404-6.219l1.49-2.581c.082-.144.033-.327-.111-.41-.145-.083-.327-.033-.41.111l-1.509 2.612C15.74 8.285 13.934 7.8 12 7.8s-3.74.485-5.341 1.054L5.15 6.242c-.083-.144-.265-.194-.41-.111-.144.083-.193.266-.11.41l1.49 2.581C3.603 10.343 2 12.523 2 15h20c0-2.477-1.603-4.657-4.119-5.878"/></svg>
+      <div class="btn-store-inner">
+        <span class="btn-store-sub">Скачать в</span>
+        <span class="btn-store-name">Google Play</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- HERO PET -->
+  <div class="hero-pet-wrap pet-animate" id="heroPet">
+    <div class="bubble" id="heroBubble">Привет! 👋</div>
+    <svg class="hero-pet" id="heroSvg" viewBox="0 0 200 190" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="100" cy="182" rx="40" ry="8" fill="rgba(0,0,0,.07)"/>
+      <!-- ears -->
+      <polygon points="38,80 52,44 70,78" fill="#2B2D42"/>
+      <polygon points="41,77 53,50 67,77" fill="#3ECF8E"/>
+      <polygon points="130,78 148,44 162,80" fill="#2B2D42"/>
+      <polygon points="133,77 147,50 159,77" fill="#3ECF8E"/>
+      <!-- body -->
+      <circle cx="100" cy="118" r="66" fill="white" stroke="#2B2D42" stroke-width="5"/>
+      <!-- arc ring -->
+      <circle cx="100" cy="118" r="56" fill="none" stroke="#e6efe6" stroke-width="9"/>
+      <circle cx="100" cy="118" r="56" fill="none" stroke="#3ECF8E" stroke-width="9"
+        stroke-dasharray="290 62" stroke-linecap="round"
+        stroke-dashoffset="88" transform="rotate(-90 100 118)"/>
+      <!-- eyes -->
+      <ellipse id="eyeL" cx="84" cy="108" rx="8" ry="9" fill="#2B2D42"/>
+      <ellipse id="eyeR" cx="116" cy="108" rx="8" ry="9" fill="#2B2D42"/>
+      <circle cx="87" cy="105" r="3" fill="white"/>
+      <circle cx="119" cy="105" r="3" fill="white"/>
+      <!-- smile -->
+      <path d="M82,128 Q100,144 118,128" fill="none" stroke="#2B2D42" stroke-width="4" stroke-linecap="round"/>
+      <!-- cheeks -->
+      <ellipse cx="66" cy="122" rx="12" ry="7" fill="#FF6B6B" opacity=".18"/>
+      <ellipse cx="134" cy="122" rx="12" ry="7" fill="#FF6B6B" opacity=".18"/>
+      <!-- arms up -->
+      <path d="M36,112 Q22,94 30,76" fill="none" stroke="#2B2D42" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="30" cy="74" r="8" fill="white" stroke="#2B2D42" stroke-width="4"/>
+      <path d="M164,112 Q178,94 170,76" fill="none" stroke="#2B2D42" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="170" cy="74" r="8" fill="white" stroke="#2B2D42" stroke-width="4"/>
+      <!-- center + hands -->
+      <circle cx="100" cy="118" r="8" fill="#F7C948"/>
+      <line x1="100" y1="118" x2="100" y2="88" stroke="#2B2D42" stroke-width="5" stroke-linecap="round"/>
+      <line x1="100" y1="118" x2="124" y2="126" stroke="#2B2D42" stroke-width="5" stroke-linecap="round"/>
+    </svg>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="how-head">
+      <div class="section-tag">Как это работает</div>
+      <h2 class="section-h">Три минуты в день.<br>Питомец живёт месяцами.</h2>
+      <p class="section-sub">Пупс не требует много — но если забыть о нём на несколько часов, последствия будут видны сразу.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon">🥚</div>
+        <div class="step-title">Вылупи питомца</div>
+        <div class="step-desc">Выбери имя и внешность. Пупс вылупится из яйца прямо в приложении — с характером и настроением с первой секунды.</div>
+      </div>
+      <div class="step">
+        <div class="step-icon">🍖</div>
+        <div class="step-title">Заботься о нём</div>
+        <div class="step-desc">Корми, играй, укладывай спать. Каждый показатель падает с разной скоростью — голод быстрее всего.</div>
+      </div>
+      <div class="step">
+        <div class="step-icon">🔔</div>
+        <div class="step-title">Получай напоминания</div>
+        <div class="step-desc">Пупс сам даст знать, когда ему плохо. Уведомление приходит с его грустной мордочкой — проигнорировать сложно.</div>
+      </div>
+      <div class="step">
+        <div class="step-icon">📈</div>
+        <div class="step-title">Расти вместе</div>
+        <div class="step-desc">Чем дольше Пупс жив, тем он старше и опытнее. Рекорд долголетия — повод для гордости.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="statbar">
+  <div class="statbar-inner">
+    <div class="stat-block">
+      <div class="stat-num" id="cnt1">0</div>
+      <div class="stat-label">питомцев заведено</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" id="cnt2">0</div>
+      <div class="stat-label">кормлений в день</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" id="cnt3">0</div>
+      <div class="stat-label">дней — рекорд жизни</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" id="cnt4">0</div>
+      <div class="stat-label">уведомлений спасло Пупса</div>
+    </div>
+  </div>
+</div>
+
+<!-- PET STATES SHOWCASE -->
+<section class="showcase" id="features">
+  <div class="showcase-inner">
+    <div>
+      <div class="section-tag">Живые эмоции</div>
+      <h2 class="section-h">Пупс чувствует. Правда.</h2>
+      <p class="section-sub" style="margin-bottom:24px;">Его мордочка меняется в зависимости от того, как ты о нём заботишься. Радость, скука, голод, страх — всё это видно с первого взгляда.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <span style="background:var(--mint-l);color:var(--mint-d);font-size:12px;font-weight:700;padding:5px 12px;border-radius:8px;">4 показателя</span>
+        <span style="background:var(--sun-l);color:#854F0B;font-size:12px;font-weight:700;padding:5px 12px;border-radius:8px;">7 эмоций</span>
+        <span style="background:var(--red-l);color:#A32D2D;font-size:12px;font-weight:700;padding:5px 12px;border-radius:8px;">1 жизнь</span>
+      </div>
+    </div>
+    <div class="states-grid">
+      <!-- Happy -->
+      <div class="state-card">
+        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="14,30 20,14 28,28" fill="#2B2D42"/><polygon points="16,28 21,17 27,27" fill="#3ECF8E"/>
+          <polygon points="52,28 60,14 66,30" fill="#2B2D42"/><polygon points="53,27 59,17 65,28" fill="#3ECF8E"/>
+          <circle cx="40" cy="46" r="26" fill="white" stroke="#2B2D42" stroke-width="2.5"/>
+          <circle cx="40" cy="46" r="21" fill="none" stroke="#e0ede0" stroke-width="4"/>
+          <circle cx="40" cy="46" r="21" fill="none" stroke="#3ECF8E" stroke-width="4" stroke-dasharray="110 22" stroke-linecap="round" stroke-dashoffset="34" transform="rotate(-90 40 46)"/>
+          <ellipse cx="33" cy="41" rx="3.5" ry="4" fill="#2B2D42"/>
+          <ellipse cx="47" cy="41" rx="3.5" ry="4" fill="#2B2D42"/>
+          <circle cx="34.5" cy="39.5" r="1.3" fill="white"/><circle cx="48.5" cy="39.5" r="1.3" fill="white"/>
+          <path d="M33,51 Q40,58 47,51" fill="none" stroke="#2B2D42" stroke-width="2" stroke-linecap="round"/>
+          <ellipse cx="28" cy="47" rx="5" ry="3" fill="#FF6B6B" opacity=".2"/>
+          <ellipse cx="52" cy="47" rx="5" ry="3" fill="#FF6B6B" opacity=".2"/>
+          <circle cx="40" cy="46" r="3.5" fill="#F7C948"/>
+          <line x1="40" y1="46" x2="40" y2="33" stroke="#2B2D42" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="40" y1="46" x2="50" y2="49" stroke="#2B2D42" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <div class="state-name">Счастливый 😸</div>
+        <div class="state-desc">Сытый, довольный, недавно поиграл</div>
+        <span class="state-hp" style="background:var(--mint-l);color:var(--mint-d);">ХП 80–100%</span>
+      </div>
+      <!-- Sleepy -->
+      <div class="state-card">
+        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="14,30 20,14 28,28" fill="#4A90D9" opacity=".7"/>
+          <polygon points="52,28 60,14 66,30" fill="#4A90D9" opacity=".7"/>
+          <circle cx="40" cy="46" r="26" fill="#f0f6ff" stroke="#aac8f0" stroke-width="2.5"/>
+          <circle cx="40" cy="46" r="21" fill="none" stroke="#dceeff" stroke-width="4"/>
+          <circle cx="40" cy="46" r="21" fill="none" stroke="#4A90D9" stroke-width="4" stroke-dasharray="80 52" stroke-linecap="round" stroke-dashoffset="34" transform="rotate(-90 40 46)"/>
+          <line x1="31" y1="40" x2="37" y2="40" stroke="#4A90D9" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="43" y1="40" x2="49" y2="40" stroke="#4A90D9" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M33,50 Q40,46 47,50" fill="none" stroke="#aac8f0" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="40" cy="46" r="3.5" fill="#aac8f0"/>
+          <text x="50" y="28" font-size="10" fill="#4A90D9" opacity=".6" font-family="sans-serif">z</text>
+          <text x="57" y="21" font-size="7" fill="#4A90D9" opacity=".4" font-family="sans-serif">z</text>
+          <ellipse cx="28" cy="57" rx="5" ry="3.5" fill="#b8d8f8" opacity=".7"/>
+          <ellipse cx="44" cy="61" rx="5" ry="3.5" fill="#b8d8f8" opacity=".6"/>
+        </svg>
+        <div class="state-name">Спит 😴</div>
+        <div class="state-desc">Ночью не беспокой — тихие уведомления</div>
+        <span class="state-hp" style="background:var(--sky-l);color:#185FA5;">22:00 — 08:00</span>
+      </div>
+      <!-- Bored -->
+      <div class="state-card">
+        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="14,30 20,14 28,28" fill="#aaa"/><polygon points="16,28 21,17 27,27" fill="#F7C948"/>
+          <polygon points="52,28 60,14 66,30" fill="#aaa"/><polygon points="53,27 59,17 65,28" fill="#F7C948"/>
+          <circle cx="40" cy="46" r="26" fill="white" stroke="#ccc" stroke-width="2.5"/>
+          <circle cx="40" cy="46" r="21" fill="none" stroke="#f5e8b0" stroke-width="4"/>
+          <circle cx="40" cy="46" r="21" fill="none" stroke="#F7C948" stroke-width="4" stroke-dasharray="60 72" stroke-linecap="round" stroke-dashoffset="34" transform="rotate(-90 40 46)"/>
+          <ellipse cx="33" cy="43" rx="3" ry="3" fill="#888"/>
+          <ellipse cx="47" cy="43" rx="3" ry="3" fill="#888"/>
+          <line x1="33" y1="51" x2="47" y2="51" stroke="#bbb" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="40" cy="46" r="3.5" fill="#F7C948"/>
+          <line x1="55" y1="34" x2="62" y2="28" stroke="#F7C948" stroke-width="2" stroke-linecap="round"/>
+          <line x1="58" y1="38" x2="66" y2="36" stroke="#F7C948" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div class="state-name">Скучает 😑</div>
+        <div class="state-desc">Давно не играли — пора уделить внимание</div>
+        <span class="state-hp" style="background:var(--sun-l);color:#854F0B;">Настроение низкое</span>
+      </div>
+      <!-- Critical -->
+      <div class="state-card">
+        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="14,30 20,14 28,28" fill="#bbb"/><polygon points="16,28 21,17 27,27" fill="#FF6B6B" opacity=".7"/>
+          <polygon points="52,28 60,14 66,30" fill="#bbb"/><polygon points="53,27 59,17 65,28" fill="#FF6B6B" opacity=".7"/>
+          <circle cx="40" cy="46" r="26" fill="white" stroke="#ddd" stroke-width="2.5"/>
+          <circle cx="40" cy="46" r="21" fill="none" stroke="#ffe0e0" stroke-width="4"/>
+          <circle cx="40" cy="46" r="21" fill="none" stroke="#FF6B6B" stroke-width="4" stroke-dasharray="20 112" stroke-linecap="round" stroke-dashoffset="34" transform="rotate(-90 40 46)"/>
+          <line x1="30" y1="38" x2="36" y2="44" stroke="#FF6B6B" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="36" y1="38" x2="30" y2="44" stroke="#FF6B6B" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="44" y1="38" x2="50" y2="44" stroke="#FF6B6B" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="50" y1="38" x2="44" y2="44" stroke="#FF6B6B" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M33,52 Q40,47 47,52" fill="none" stroke="#ddd" stroke-width="2" stroke-linecap="round"/>
+          <ellipse cx="60" cy="30" rx="2.5" ry="3.5" fill="#4A90D9" opacity=".5"/>
+          <circle cx="60" cy="27.2" r="2.5" fill="#4A90D9" opacity=".5"/>
+          <circle cx="40" cy="46" r="3.5" fill="#ddd"/>
+        </svg>
+        <div class="state-name">В опасности 😿</div>
+        <div class="state-desc">Срочно нужна помощь! Ещё немного — и всё</div>
+        <span class="state-hp" style="background:var(--red-l);color:#A32D2D;">ХП < 15%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NOTIFICATIONS -->
+<section class="notifs">
+  <div class="notifs-inner">
+    <div>
+      <div class="section-tag">Умные уведомления</div>
+      <h2 class="section-h">Пупс сам попросит о помощи.</h2>
+      <p class="section-sub" style="margin-bottom:32px;">Не нужно постоянно открывать приложение. Когда питомцу плохо — он сам даст знать. С мордочкой прямо в уведомлении.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:42px;height:42px;background:var(--sun-l);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🍖</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px;">Голод — главная угроза</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Показатель падает каждые 3–4 часа. Уведомление приходит заранее — не в критический момент.</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:42px;height:42px;background:var(--purple-l);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🎮</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px;">Скука убивает медленнее, но верно</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Если не играть больше суток — настроение падает и тянет за собой здоровье.</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:42px;height:42px;background:var(--red-l);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">💔</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px;">Последнее предупреждение</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">При ХП ниже 10% — красный экран блокировки и звук. Последний шанс спасти питомца.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCK SCREEN PHONE -->
+    <div class="notif-phone">
+      <div class="notif-screen">
+        <div class="notif-time">20:14</div>
+        <div class="notif-date">Вторник, 24 июня</div>
+        <div class="push">
+          <div class="push-header">
+            <div class="push-app-icon" style="background:#FF6B6B;">🐾</div>
+            <div class="push-app-name">ХроноПупс</div>
+            <div class="push-time">только что</div>
+          </div>
+          <div class="push-body">
+            <svg width="48" height="48" viewBox="0 0 80 80" style="flex-shrink:0;opacity:.9;">
+              <polygon points="14,30 20,14 28,28" fill="#777"/><polygon points="16,28 21,17 27,27" fill="#FF6B6B" opacity=".7"/>
+              <polygon points="52,28 60,14 66,30" fill="#777"/><polygon points="53,27 59,17 65,28" fill="#FF6B6B" opacity=".7"/>
+              <circle cx="40" cy="46" r="26" fill="rgba(255,255,255,.15)" stroke="#888" stroke-width="2.5"/>
+              <ellipse cx="33" cy="43" rx="3" ry="3.5" fill="#aaa"/><ellipse cx="47" cy="43" rx="3" ry="3.5" fill="#aaa"/>
+              <path d="M34,52 Q40,47 46,52" fill="none" stroke="#777" stroke-width="1.8" stroke-linecap="round"/>
+              <circle cx="40" cy="46" r="3" fill="#777"/>
+            </svg>
+            <div>
+              <div class="push-text-title">Пупс голодает уже 5 часов 😿</div>
+              <div class="push-text-sub">ХП падает. Зайди и покорми его!</div>
+            </div>
+          </div>
+          <div class="push-btns">
+            <button class="push-btn push-later">Позже</button>
+            <button class="push-btn push-action">Покормить</button>
+          </div>
+        </div>
+        <div class="push" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.07);">
+          <div class="push-header">
+            <div class="push-app-icon" style="background:var(--sun);">⭐</div>
+            <div class="push-app-name">ХроноПупс</div>
+            <div class="push-time">3 ч назад</div>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);">🔥 Пупс жив уже 7 дней подряд!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES GRID -->
+<section class="features">
+  <div class="features-inner">
+    <div class="features-head">
+      <div class="section-tag">Возможности</div>
+      <h2 class="section-h">Всё что нужно питомцу.</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon" style="background:var(--mint-l);">🥚</div>
+        <div class="feat-title">Вылупление</div>
+        <div class="feat-desc">Питомец вылупляется из яйца с анимацией. Можно выбрать цвет, имя и характер — игривый, спокойный или капризный.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:var(--sun-l);">🍖</div>
+        <div class="feat-title">Кормление</div>
+        <div class="feat-desc">Разная еда даёт разные бонусы. Рыба восстанавливает ХП, печенье поднимает настроение, но не стоит кормить одним и тем же.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:var(--purple-l);">🎮</div>
+        <div class="feat-title">Мини-игры</div>
+        <div class="feat-desc">Три простые игры прямо в приложении: поймай рыбку, лабиринт, угадай слово. Играй вместе с питомцем — оба в выигрыше.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:var(--sky-l);">🌙</div>
+        <div class="feat-title">Ночной режим</div>
+        <div class="feat-desc">С 22:00 до 8:00 Пупс спит. Уведомления становятся тихими. Беспокоить его в это время — портить здоровье.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:var(--red-l);">💀</div>
+        <div class="feat-title">Настоящая смерть</div>
+        <div class="feat-desc">Если ХП упало до нуля — питомец умирает. История сохраняется. Можно завести нового, но того уже не вернуть.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:var(--mint-l);">📊</div>
+        <div class="feat-title">История жизни</div>
+        <div class="feat-desc">График настроения по дням, количество кормлений, рекорд без пропусков. Видно, в какой день забыл о питомце.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="reviews" id="reviews">
+  <div class="reviews-inner">
+    <div class="reviews-head">
+      <div class="section-tag">Отзывы</div>
+      <h2 class="section-h">Они уже завели Пупса.</h2>
+    </div>
+    <div class="review-grid">
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">«Первый раз за много лет я чуть не опоздал на встречу потому что забыл покормить питомца. Это что-то невероятное.»</div>
+        <div class="review-author">
+          <div class="review-avatar" style="background:var(--mint-l);">🧑</div>
+          <div><div class="review-name">Артём К.</div><div class="review-handle">App Store · 5 ★</div></div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">«Показала дочке — теперь она проверяет Пупса каждые два часа. Я сама подсела.»</div>
+        <div class="review-author">
+          <div class="review-avatar" style="background:var(--sun-l);">👩</div>
+          <div><div class="review-name">Марина Д.</div><div class="review-handle">Google Play · 5 ★</div></div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">«Мой первый Пупс прожил 23 дня. Когда он умер — было реально грустно. Вот это привязанность!»</div>
+        <div class="review-author">
+          <div class="review-avatar" style="background:var(--purple-l);">👦</div>
+          <div><div class="review-name">Никита Р.</div><div class="review-handle">App Store · 5 ★</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-final" id="download">
+  <div style="position:relative;z-index:2;">
+    <h2>Пупс ждёт тебя. 🐾</h2>
+    <p>Бесплатно. Без рекламы. Только питомец которому нужна твоя забота.</p>
+    <div class="cta-btns">
+      <a href="#" class="btn-white">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.18 1.27-2.16 3.8.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.37 2.78M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div><div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.04em;">Скачать в</div><div style="font-size:16px;font-weight:800;">App Store</div></div>
+      </a>
+      <a href="#" class="btn-outline">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.523 15.341c-.412 0-.747-.336-.747-.748s.335-.748.747-.748.748.336.748.748-.336.748-.748.748m-11.046 0c-.412 0-.748-.336-.748-.748s.336-.748.748-.748.747.336.747.748-.335.748-.747.748m11.404-6.219l1.49-2.581c.082-.144.033-.327-.111-.41-.145-.083-.327-.033-.41.111l-1.509 2.612C15.74 8.285 13.934 7.8 12 7.8s-3.74.485-5.341 1.054L5.15 6.242c-.083-.144-.265-.194-.41-.111-.144.083-.193.266-.11.41l1.49 2.581C3.603 10.343 2 12.523 2 15h20c0-2.477-1.603-4.657-4.119-5.878"/></svg>
+        <div><div style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.04em;">Скачать в</div><div style="font-size:16px;font-weight:800;">Google Play</div></div>
+      </a>
+    </div>
+  </div>
+  <!-- bg pet silhouettes -->
+  <svg style="position:absolute;right:-20px;bottom:-10px;opacity:.07;pointer-events:none;" width="260" height="240" viewBox="0 0 200 190">
+    <polygon points="38,80 52,44 70,78" fill="white"/>
+    <polygon points="130,78 148,44 162,80" fill="white"/>
+    <circle cx="100" cy="118" r="66" fill="white"/>
+  </svg>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+      <polygon points="5,16 9,7 13,15" fill="rgba(255,255,255,.5)"/>
+      <polygon points="5.5,15 9,8.5 12.5,15" fill="#3ECF8E"/>
+      <polygon points="23,15 27,7 31,16" fill="rgba(255,255,255,.5)"/>
+      <polygon points="23.5,15 27,8.5 30.5,15" fill="#3ECF8E"/>
+      <circle cx="18" cy="22" r="13" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.4)" stroke-width="2"/>
+      <ellipse cx="14" cy="20" rx="1.8" ry="2" fill="rgba(255,255,255,.7)"/>
+      <ellipse cx="22" cy="20" rx="1.8" ry="2" fill="rgba(255,255,255,.7)"/>
+      <path d="M14,24 Q18,28 22,24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    ХроноПупс
+  </div>
+  <div class="footer-copy">© 2025 ХроноПупс. Сделано с ❤️</div>
+  <div class="footer-links">
+    <a href="#">Конфиденциальность</a>
+    <a href="#">Поддержка</a>
+    <a href="#">Пресс-кит</a>
+  </div>
+</footer>
+
+<script>
+// Floating dots background
+(function(){
+  const c=document.getElementById('dots');
+  const cols=['#3ECF8E','#F7C948','#FF6B6B','#4A90D9'];
+  for(let i=0;i<18;i++){
+    const d=document.createElement('div');
+    d.className='dot';
+    const s=Math.random()*28+10;
+    d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;top:${Math.random()*100}%;background:${cols[i%4]};`;
+    c.appendChild(d);
+  }
+})();
+
+// Counter animation
+function animateCount(el,target,suffix){
+  let v=0;const dur=1600;const step=16;const inc=target/(dur/step);
+  const t=setInterval(()=>{
+    v=Math.min(v+inc,target);
+    el.textContent=Math.round(v).toLocaleString('ru')+(suffix||'');
+    if(v>=target)clearInterval(t);
+  },step);
+}
+const statsData=[
+  {id:'cnt1',val:42800,suffix:''},
+  {id:'cnt2',val:3100,suffix:''},
+  {id:'cnt3',val:312,suffix:''},
+  {id:'cnt4',val:89000,suffix:''},
+];
+let fired=false;
+const obs=new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting&&!fired){
+    fired=true;
+    statsData.forEach(s=>animateCount(document.getElementById(s.id),s.val,s.suffix));
+  }
+},{threshold:.3});
+obs.observe(document.querySelector('.statbar'));
+
+// Hero pet reacts to time of day
+(function(){
+  const h=new Date().getHours();
+  const bubble=document.getElementById('heroBubble');
+  if(h>=6&&h<12) bubble.textContent='Доброе утро! ☀️';
+  else if(h>=12&&h<17) bubble.textContent='Привет! 👋';
+  else if(h>=17&&h<21) bubble.textContent='Вечер добрый! 🌇';
+  else bubble.textContent='Не пора ли спать? 🌙';
+})();
+
+// Wiggle on hover
+document.getElementById('heroPet').addEventListener('mouseenter',function(){
+  this.style.animation='wiggle .4s ease-in-out 3';
+});
+document.getElementById('heroPet').addEventListener('animationend',function(){
+  this.style.animation='';
+});
+
+// Eye tracking (subtle)
+document.addEventListener('mousemove',function(e){
+  const svg=document.getElementById('heroSvg');
+  if(!svg)return;
+  const r=svg.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height*0.57;
+  const dx=(e.clientX-cx)*0.012, dy=(e.clientY-cy)*0.012;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const ox=clamp(dx,-3,3), oy=clamp(dy,-2,2);
+  const eL=document.getElementById('eyeL');
+  const eR=document.getElementById('eyeR');
+  if(eL&&eR){
+    eL.setAttribute('cx',84+ox); eL.setAttribute('cy',108+oy);
+    eR.setAttribute('cx',116+ox); eR.setAttribute('cy',108+oy);
+  }
+});
+</script>
+</body>
+</html>
